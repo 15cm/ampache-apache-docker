@@ -16,6 +16,11 @@ sudo -u www-data cp /ampache.cfg.php.dist ${example_conf_file}
 service cron start
 service cron reload
 
+# Apply ENV Vars
+[ -n "${MEMORY_CACHE_ENABLED}" ] && sed -i 's/;*\s*\(memory_cache = \).*/\1"true"/' ${example_conf_file}
+sed -i "s/;*\s*\(memory_limit = \).*/\1\"${MEMORY_LIMIT:-32}\"/" ${example_conf_file}
+[ -n "${LOCAL_WEB_PATH}" ] && sed -i "s/;*\s*\(local_web_path = \).*/\1\"${LOCAL_WEB_PATH}\"/" ${example_conf_file}
+[ -n "${ART_ORDER}" ] && sed -i "s/;*\s*\(art_order = \).*/\1\"${ART_ORDER}\"/" ${example_conf_file}
 
 # run this in the foreground so Docker won't exit
 exec /usr/local/bin/apache2-foreground
