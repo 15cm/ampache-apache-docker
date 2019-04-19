@@ -54,10 +54,7 @@ RUN find /var/www/html/lib/vendor -name .git -type d -print0 |xargs -0 -- rm -rf
     # Modify the .dist config:
     # - comment out database_name and database_username by default
     # - set the default database_hostname to "mysql"
-    perl -pi -E 's{^(database_username|database_name)}{;$1}g; s{^database_hostname\s*=.*}{database_hostname = mysql}' /var/www/html/config/ampache.cfg.php.dist && \
-    # Copy the .dist somewhere outside of the /config tree, so that we can
-    # update it when needed
-    cp /var/www/html/config/ampache.cfg.php.dist /ampache.cfg.php.dist
+    perl -pi -E 's{^(database_username|database_name)}{;$1}g; s{^database_hostname\s*=.*}{database_hostname = mysql}' /var/www/html/config/ampache.cfg.php.dist
 
     # Misc packages
 RUN DEBIAN_FRONTEND=noninteractive apt-get -y install cron
