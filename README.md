@@ -16,7 +16,16 @@ you can connect to it from your ampache container.
 ### docker run
 
 ```bash
-docker run --link mariadb:mariadb --name=ampache -d -v /path/to/your/music:/media:ro -p 80:80 zerodogg/ampache-apache
+docker run --name ampache \
+-e CRON_JOB_UPDATE_CATALOGS=0 4 * * * \
+-e TZ=America/New_York \
+-e MEMORY_CACHE_ENABLED=true \
+-e MEMORY_LIMIT=1024 \
+-e LOCAL_WEB_PATH=https://yourdomain.com \
+-v /config:/var/www/html/config \
+-v /music:/media \
+-p 8080:80 \
+15cm/ampache-apache-docker
 ```
 
 Then visit the container in a web browser to complete the setup. When prompted
@@ -26,15 +35,11 @@ container as the hostname).
 
 ### docker-compose
 
-Clone the git repository from https://gitlab.com/zerodogg/ampache-docker or
-download the [docker-compose.yml file](https://gitlab.com/zerodogg/ampache-docker/raw/master/docker-compose.yml).
-Then run ``docker-compose up`` from the directory that you downloaded the
-`docker-compose.yml` file to.
-
-You should probably change the MYSQL_ROOT_PASSWORD environment variable in the
-docker-compose file to a non-default value.
-
-Then visit the container in a web browser to complete the setup.
+`docker-compose` is recommended to run this docker image along with the mariadb
+image. Clone the git repository from
+<https://github.com/15cm/ampache-apache-docker>, check the ENV variables in
+`./mariadb.env`, `./ampache.env` and mount volumes in `./docker-compose.yml`.
+Then run `docker-compose up` under the repository directory.
 
 ## Image details
 
@@ -46,6 +51,8 @@ this by having a reverse proxy in front of it. The
 with
 [letsencrypt-nginx-proxy-companion](https://hub.docker.com/r/jrcs/letsencrypt-nginx-proxy-companion/)
 works great along with this container and is simple to set up.
+[traefik](https://github.com/containous/traefik) is also a good tool to automate
+your reverse proxy configurations.
 
 ## Volumes
 
@@ -59,19 +66,31 @@ be read-only.
 `/var/www/html/themes` is where custom themes reside. You only need to worry
 about this one if you actually want to use custom themes.
 
+## Ampache configuration
+
+To avoid editing `/var/www/html/config/ampache.cfg.php` by hand. Some ENV
+variables are provided to setup the Ampache instance:
+- `MEMORY_CACHE_ENABLED=true`
+- `MEMORY_LIMIT=1024`
+- `LOCAL_WEB_PATH=https://yourdomain.com`
+
+The meaning of these options can be checked at <https://github.com/ampache/ampache/blob/develop/config/ampache.cfg.php.dist>.
+
 ## Auto-updating the library
 
-The container will auto-update the ampache library. It uses inotify to monitor
-for changes. If your library is larger than the number of permitted inotify
-watches (by default 8192), however, it will fall back to just auto-updating the
-library every 24 hours instead. It will output a message visible in the docker
-logs when the container starts if the number of inotify watches is too low.
+It seems that Ampache doesn't have a lock for the library to prevent race
+condition when updating catalogs with web UI and CLI simultaneously. These two
+UI updates the catalogs using two different user, e.g., "admin" and "ampache"
+separately, resulting in duplicated track insertion. Therefore instead of using
+inotify to watch the library, this docker image use crontab to update the
+library periodically.
 
-If it is too low for your library and you want to use auto-updating, you can
-increase the allowed number of inotify watches by writing to
-`/proc/sys/fs/inotify/max_user_watches` or setting the sysctl
-`fs.inotify.max_user_watches` (since `/proc` is read-only in the container, it
-can't do that on its own).
+Set the `CRON_JOB_UPDATE_CATALOGS` ENV variable with crontab rule like `0
+0 * * *` to auto-update all catalogs. Please make sure you won't update the
+library manually via the web UI when the crontab job is running.
+
+A timezone ENV variable `TZ` is also provided to ensure the crontab job runs
+with your local time.
 
 ## Thanks to
 - @arielelkin for the initial work on this container
