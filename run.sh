@@ -24,6 +24,8 @@ sudo -u www-data [ -n "${MEMORY_CACHE_ENABLED}" ] && sed -i 's|;*\s*\(memory_cac
 sudo -u www-data sed -i "s|;*\s*\(memory_limit = \).*|\1\"${MEMORY_LIMIT:-32}\"|" ${example_conf_file}
 sudo -u www-data [ -n "${LOCAL_WEB_PATH}" ] && sed -i "s|;*\s*\(local_web_path = \).*|\1\"${LOCAL_WEB_PATH}\"|" ${example_conf_file}
 sudo -u www-data [ -n "${ART_ORDER}" ] && sed -i "s|;*\s*\(art_order = \).*|\1\"${ART_ORDER}\"|" ${example_conf_file}
+sudo -u www-data [ -n "${LASTFM_API_KEY}" ] && sed -i "s|;*\s*\(lastfm_api_key = \).*|\1\"${LASTFM_API_KEY}\"|" ${example_conf_file}
+sudo -u www-data [ -n "${LASTFM_API_SECRET}" ] && sed -i "s|;*\s*\(lastfm_api_secret = \).*|\1\"${LASTFM_API_SECRET}\"|" ${example_conf_file}
 
 # run this in the foreground so Docker won't exit
 exec /usr/local/bin/apache2-foreground
