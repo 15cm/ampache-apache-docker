@@ -2,10 +2,6 @@
 
 example_conf_file=/var/www/html/config/ampache.cfg.php.dist
 
-# Update the .dist file in the volume, so that we *KNOW* that it is up-to-date
-# with the ampache version
-sudo -u www-data cp /ampache.cfg.php.dist ${example_conf_file}
-
 # Set timezone
 unlink /etc/localtime
 ln -s /usr/share/zoneinfo/${TZ} /etc/localtime
