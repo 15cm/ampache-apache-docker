@@ -2,9 +2,7 @@ FROM php:7.3-apache-stretch
 LABEL maintainer="Eskild Hustvedt code@zerodogg.org"
 
 # The ampache version
-ARG version=3.9.0
-# Checksum for the ampache tarball
-ARG tarballChecksum=0d5f024b677876a2c1ee23479af92c9c82808d08b10adb94ece69f5514fce03977006a6ba4b04c85fb9053c052391a66b8e464915ac6396c90306d53f5bc934d
+ARG version=develop
 # The composer version
 ARG composerVersion=1.6.5
 # The composer checksum
@@ -29,7 +27,6 @@ RUN apt-get update && \
 
     # Download, extract and install ampache
 RUN wget --progress=bar:force:noscroll -O /opt/ampache.tar.gz https://github.com/ampache/ampache/archive/$version.tar.gz && \
-    /usr/bin/test "`sha512sum /opt/ampache.tar.gz|cut -d' ' -f 1`" = "$tarballChecksum" && \
     rm -rf /var/www/html/* && \
     tar -C /var/www/html/ -xf /opt/ampache.tar.gz ampache-$version --strip=1 && \
     # Fix ownership
