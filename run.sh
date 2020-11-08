@@ -12,7 +12,7 @@ ln -s /usr/share/zoneinfo/${TZ} /etc/localtime
 # A lock for catalogs updating in Ampache should solve this problem
 # Here I choose to let the user specify the crontab rule of updating to make sure the catalogs are first updated by web UI once
 # and then by CLI periodically so that the race condition won't happen
-[ -n "${CRON_JOB_UPDATE_CATALOGS}" ] && (crontab -l 2>/dev/null; echo "${CRON_JOB_UPDATE_CATALOGS} /usr/local/bin/php /var/www/html/bin/catalog_update.inc") | sort | uniq | crontab -
+[ -n "${CRON_JOB_UPDATE_CATALOGS}" ] && (crontab -l 2>/dev/null; echo "${CRON_JOB_UPDATE_CATALOGS} /usr/local/bin/php /var/www/html/bin/catalog_update.inc -c -a -g -m") | sort | uniq | crontab -
 service cron restart
 
 # Apply ENV Vars
